@@ -1,0 +1,20 @@
+{
+    "name": "zusuky/zusuky",
+    "description": "Zusuky framework",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Keiji Horie",
+            "email": "horie.keiji@rococo.co.jp"
+        }
+    ],
+    "autoload": {
+        "classmap": ["src/AutoLoader.php"]
+    },
+    "require": {
+        "smarty/smarty": "~3.1",
+        "phpmailer/phpmailer": "~6.0",
+        "apache/log4php": "~2.3",
+        "ramsey/uuid": "^4.0"
+    }
+}
