@@ -1,0 +1,39 @@
+<Files ~ "^\.(htaccess|htpasswd|htdigest)$">
+deny from all
+</Files>
+
+<IfModule mod_rewrite.c>
+
+RewriteEngine on
+
+RewriteCond %{HTTP:X-Forwarded-Proto} =http
+RewriteRule .* https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
+
+# Send request via index.php if not a real file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Exclude css/js/img
+RewriteCond %{REQUEST_URI} !^(.*)/assets/css/(.*)$
+RewriteCond %{REQUEST_URI} !^(.*)/assets/js/(.*)$
+RewriteCond %{REQUEST_URI} !^(.*)/assets/img/(.*)$
+
+# Rewrite
+RewriteRule ^(.*)$ index.php?$1 [QSA,L]
+
+</IfModule>
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType text/css "access plus 1 weeks"
+ExpiresByType application/javascript "access plus 1 year"
+ExpiresByType application/x-javascript "access plus 1 year"
+ExpiresByType text/javascript "access plus 1 year"
+ExpiresByType image/gif "access plus 1 weeks"
+ExpiresByType image/png "access plus 1 weeks"
+ExpiresByType image/jpeg "access plus 1 weeks"
+</IfModule>
+
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css application/x-javascript application/javascript
+</IfModule>
