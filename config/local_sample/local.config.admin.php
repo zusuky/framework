@@ -11,7 +11,7 @@ return [
 
         // 選択可能言語
         'selectables' => ['ja'],
-    ];
+    ],
 
     // appディレクトリ定義
     'app_dir' => [

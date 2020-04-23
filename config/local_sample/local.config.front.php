@@ -10,8 +10,8 @@ return [
         'default' => 'ja',
 
         // 選択可能言語
-        'selectables' => ['ja', 'en'],
-    ];
+        'selectables' => ['ja'],
+    ],
 
     // appディレクトリ定義
     'app_dir' => [
