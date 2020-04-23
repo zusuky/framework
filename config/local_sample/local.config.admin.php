@@ -5,6 +5,14 @@ return [
     // 環境定義（local|testing|staging|production）
     'env' => 'local',
 
+    'lang' => [
+        // デフォルト言語
+        'default' => 'ja',
+
+        // 選択可能言語
+        'selectables' => ['ja'],
+    ];
+
     // appディレクトリ定義
     'app_dir' => [
         // appのrootとなるディレクトリ

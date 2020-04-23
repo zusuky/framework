@@ -3,14 +3,15 @@
 class Lang
 {
 
-    /** @var  array  選択可能な言語 */
-    private static array $selectables = [
-        'ja' => '日本語',
-        'en' => '英語',
-    ];
-
-    /** @var  string  デフォルト言語 */
-    private static string $default = 'ja';
+    /**
+     * デフォルト言語を取得
+     *
+     * @return  string  デフォルト言語
+     */
+    public static function getDefault() : string
+    {
+       return Config::get('lang.default');
+    }
 
     /**
      * 選択可能な言語を取得
@@ -19,27 +20,17 @@ class Lang
      */
     public static function getSelectables() : array
     {
-       return self::$selectables;
-    }
-
-    /**
-     * デフォルト言語を取得
-     *
-     * @return  string  デフォルト言語
-     */
-    public static function getDefault() : string
-    {
-       return self::$default;
+       return Config::get('lang.selectables');
     }
 
     /**
      * 使用する言語を設定
      *
-     * @param  string  $current  現在使用されている言語
+     * @param  array  $lang  使用する言語
      */
-    public static function setCurrent($current) : void
+    public static function setCurrent($lang) : void
     {
-     	Cookie::set('currentLang', $current);
+        Cookie::set('currentLang', $lang);
     }
 
     /**

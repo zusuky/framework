@@ -3,21 +3,24 @@
 class Zusuky
 {
 
+    /** @var array configs */
+    private static $configs = [];
+
     /** @var array uri（uriをスラッシュで分割した配列） */
     private static $uri = [];
 
     /**
      * Zusukyに魂を注入する
      */
-    public static function bootstrap()
+    public static function bootstrap($configs)
     {
         try {
 
-            self::initialize();       // 初期処理
-            self::identifyLang();     // 言語の特定
-            self::loadConfig();       // configの読み込み
-            self::registerHandler();  // ハンドラーの登録
-            self::dispatch();         // 処理をコントローラーに割り当て
+            self::initialize($configs);  // 初期処理
+            self::loadConfig();          // configの読み込み
+            self::identifyLang();        // 言語の特定
+            self::registerHandler();     // ハンドラーの登録
+            self::dispatch();            // 処理をコントローラーに割り当て
 
         } catch (Throwable $e) {
             error_log (print_r($e, true));
@@ -114,12 +117,15 @@ HTML;
     /**
      * Zuskyの初期処理
      */
-    private static function initialize()
+    private static function initialize($configs)
     {
         ini_set('default_charset','UTF-8');
         mb_internal_encoding("UTF-8");
         date_default_timezone_set('Asia/Tokyo');
         ini_set('display_errors', 0);
+
+        // configsの保持
+        self::$configs = (array)$configs;
 
         // uriの保持
         if (isset($_SERVER['REQUEST_URI'])) {
@@ -134,55 +140,24 @@ HTML;
     }
 
     /**
-     * 言語の特定
-     */
-    private static function identifyLang() : void
-    {
-        // uriから言語を特定
-        $lang = Lang::getDefault();
-        if (isset(self::$uri[0])) {
-            $selectable_langs = Lang::getSelectables();
-            if (isset($selectable_langs[self::$uri[0]])) {
-                $lang = self::$uri[0];
-                array_shift(self::$uri);
-            }
-        }
-
-        // 言語をcookieに保持
-        Lang::setCurrent($lang);
-    }
-
-    /**
      * configの読み込み
      */
     private static function loadConfig() : void
     {
-        // configの定義
-        // uri別に、読み込むconfigを指定する
-        //   - キー：uri
-        //   - バリュー：読み込むconfigファイル
-        // キーにアスタリスクを設定すると、それがデフォルトのconfigとなる
-        // uriにマッチしなかった場合は、デフォルトのconfigを読み込むことになる
-        $configs = [
-            'admin' => dirname(__DIR__) . '/config/config.admin.php',
-            'api'   => dirname(__DIR__) . '/config/confiapi.api.php',
-            '*'     => dirname(__DIR__) . '/config/config.front.php',
-        ];
-
         // uriからconfigファイル特定
         $config_file = '';
         if (isset(self::$uri[0])) {
-            if (isset($configs[self::$uri[0]])) {
-                if (is_file($configs[self::$uri[0]])) {
-                    $config_file = $configs[self::$uri[0]];
+            if (isset(self::$configs[self::$uri[0]])) {
+                if (is_file(self::$configs[self::$uri[0]])) {
+                    $config_file = self::$configs[self::$uri[0]];
                     array_shift(self::$uri);
                 }
             }
         }
         if ($config_file === '') {
-            if (isset($configs['*'])) {
-                if (is_file($configs['*'])) {
-                    $config_file = $configs['*'];
+            if (isset(self::$configs['*'])) {
+                if (is_file(self::$configs['*'])) {
+                    $config_file = self::$configs['*'];
                 }
             }
         }
@@ -197,10 +172,33 @@ HTML;
         // config読み込み
         Config::load($config_file);
 
+        // loggerだけはクラスじゃないので、読み込む
+        require_once __DIR__ . '/Log/logger.php';
+
+        // appのrootとなるディレクトリをオートローダーに登録
+        AutoLoader::add(Config::get('app_dir.root'));
+
         // ベーシック認証が定義されていれば実施
         if (Config::get('basic_auth.user') != '' && Config::get('basic_auth.pass')) {
             self::basicAuth(Config::get('basic_auth.user'), Config::get('basic_auth.pass'));
         }
+    }
+
+    /**
+     * 言語の特定
+     */
+    private static function identifyLang() : void
+    {
+        // uriから言語を特定し、使用する言語として保存
+        $lang = Lang::getDefault();
+        if (isset(self::$uri[0])) {
+            $selectable_langs = Lang::getSelectables();
+            if (isset($selectable_langs[self::$uri[0]])) {
+                $lang = self::$uri[0];
+                array_shift(self::$uri);
+            }
+        }
+        Lang::setCurrent($lang);
     }
 
     /**
@@ -308,12 +306,6 @@ HTML;
     private static function dispatch() : void
     {
         try {
-
-            // loggerだけはクラスじゃないので、個別に読み込む。
-            require_once __DIR__ . '/Log/logger.php';
-
-            // appのrootとなるディレクトリをオートローダーに登録
-            AutoLoader::add(Config::get('app_dir.root'));
 
             infoLog('==========' . $_SERVER['SCRIPT_NAME'] . ' start ==========');
 
