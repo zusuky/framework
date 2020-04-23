@@ -1,7 +1,6 @@
 {
-    "name": "zusuky/zusuky",
+    "name": "zusuky/framework",
     "description": "Zusuky framework",
-    "version": "1.0.0",
     "authors": [
         {
             "name": "Keiji Horie",
