@@ -8,7 +8,7 @@
         }
     ],
     "autoload": {
-        "classmap": ["src/AutoLoader.php"]
+        "classmap": ["core/AutoLoader.php"]
     },
     "require": {
         "smarty/smarty": "~3.1",
