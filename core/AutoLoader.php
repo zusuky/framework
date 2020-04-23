@@ -43,4 +43,3 @@ class AutoLoader
 
 }
 
-AutoLoader::add(__DIR__);
