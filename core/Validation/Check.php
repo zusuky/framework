@@ -133,74 +133,7 @@ class Check
         if (is_null($value) || strlen(trim($value)) == 0) {
             return true;
         }
-
-        // 文字幅＝文字数のチェック（半角チェック）
-        if(mb_strwidth($value) != mb_strlen($value)){
-            return false;
-        }
-
-        // @の位置
-        $markPos = strpos($value, '@');
-        if ($markPos === false) {
-            return false;
-        }
-
-        // ドットの位置
-        $markDot = strpos($value, '.@');
-        if ($markDot !== false) {
-            return false;
-        }
-
-        // ドメイン
-        $domain  = substr($value, $markPos + 1, strlen($value));
-
-        // [全体]
-        // 英数字で始まっていること
-        // アンパサンドが含まれていないこと
-        // カンマが含まれていないこと
-        // 半角スペースが含まれていないこと
-        // 全角スペースが含まれていないこと
-        // ダブルクゥートが含まれていないこと
-        // シングルクゥートが含まれていないこと
-        // ドットが連続しないこと
-        // <が含まれていないこと
-        // >が含まれていないこと
-        // mb_strwidthで1バイトあつかいされてしまう全角ハイフンが含まれていないこと
-        // 環境依存文字ハイフンが含まれていないこと
-        // 別のハイフン（ユニコードでU+2010）が含まれていないこと
-        // mailto:で始まっていないこと
-        if (!preg_match('/^[a-zA-Z0-9]+$/', substr($value, 0, 1)) ||
-            strpos($value, '&') !== false ||
-            strpos($value, ',') !== false ||
-            strpos($value, ' ') !== false ||
-            strpos($value, '　') !== false ||
-            strpos($value, '"') !== false ||
-            strpos($value, "'") !== false ||
-            strpos($value, '..') !== false ||
-            strpos($value, '<') !== false ||
-            strpos($value, '>') !== false ||
-            strpos($value, '―') !== false ||
-            strpos($value, 'ｰ') !== false ||
-            strpos($value, '‐') !== false ||
-            strpos($value, 'mailto:') === 0) {
-            return false;
-        }
-
-        // [ドメイン]
-        // ドットが一個以上含まれていること
-        // @が含まれていないこと
-        // アンダーバーが含まれていないこと
-        // 英数字で始まっていること
-        // 英字で終わっていること
-        if (strpos($domain, '.') === false ||
-                strpos($domain, '@') !== false ||
-                strpos($domain, '_') !== false ||
-                !preg_match('/^[a-zA-Z0-9]+$/', substr($domain, 0, 1)) ||
-                !preg_match('/^[a-zA-Z]+$/', substr($domain, strlen($domain) - 1, strlen($domain)))) {
-            return false;
-        }
-
-        return true;
+        return filter_var($value, FILTER_VALIDATE_EMAIL);
     }
 
     /**
